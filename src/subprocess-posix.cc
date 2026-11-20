@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/wait.h>
+#include <paths.h>
 #include <spawn.h>
 
 #if defined(USE_PPOLL)
@@ -129,8 +130,8 @@ bool Subprocess::Start(SubprocessSet* set, const string& command) {
   if (err != 0)
     Fatal("posix_spawnattr_setflags: %s", strerror(err));
 
-  const char* spawned_args[] = { "/bin/sh", "-c", command.c_str(), NULL };
-  err = posix_spawn(&pid_, "/bin/sh", &action, &attr,
+  const char* spawned_args[] = { "sh", "-c", command.c_str(), NULL };
+  err = posix_spawn(&pid_, _PATH_BSHELL, &action, &attr,
         const_cast<char**>(spawned_args), environ);
   if (err != 0)
     Fatal("posix_spawn: %s", strerror(err));
