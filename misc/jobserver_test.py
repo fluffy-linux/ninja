@@ -182,6 +182,18 @@ class JobserverTest(unittest.TestCase):
             max_overlaps = compute_max_overlapped_spans(b.path, task_count)
             self.assertEqual(max_overlaps, 1)
 
+    def test_ninjajobs_sets_default_parallelism(self):
+        # Without -j, a positive NINJAJOBS is the most jobs run at once.
+        # (Fewer may overlap on a loaded machine, so check only the limit.)
+        task_count = 4
+        build_plan = generate_build_plan(task_count)
+        with BuildDir(build_plan) as b:
+            for jobs in (1, 2):
+                b.ninja_clean()
+                b.ninja_run(["all"], extra_env={"NINJAJOBS": str(jobs)})
+                max_overlaps = compute_max_overlapped_spans(b.path, task_count)
+                self.assertLessEqual(max_overlaps, jobs)
+
     def _run_client_test(self, jobserver_args: T.List[str]) -> None:
         task_count = 4
         build_plan = generate_build_plan(task_count)
