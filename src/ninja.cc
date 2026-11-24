@@ -252,6 +252,11 @@ void Usage(const BuildConfig& config) {
 
 /// Choose a default value for the -j (parallelism) flag.
 int GuessParallelism() {
+  int   j = 0;
+  char* jobs = getenv( "NINJAJOBS" );
+  if ( jobs != NULL ) j = atoi( jobs );
+  if ( j > 0 ) return j;
+
   switch (int processors = GetProcessorCount()) {
   case 0:
   case 1:
